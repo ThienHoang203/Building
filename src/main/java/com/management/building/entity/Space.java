@@ -1,18 +1,21 @@
 package com.management.building.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.management.building.enums.SpaceStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -35,31 +38,32 @@ public class Space {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-    
+
     @NotBlank(message = "Space name is required")
     @Column(nullable = false)
     String name;
-    
+
+    @Enumerated(EnumType.STRING)
     @NotBlank(message = "Status is required")
-    String status;
-    
+    SpaceStatus status;
+
     @Min(value = 0, message = "Position number must be non-negative")
     int positionNumber;
-    
+
     @Min(value = 0, message = "Capacity must be non-negative")
     int capacity;
-    
+
     @DecimalMin(value = "0.0", inclusive = false, message = "Area must be positive")
     double area;
-    
-    @DecimalMin(value = "0.0", inclusive = false, message = "Length must be positive")
-    double length;
-    
-    @DecimalMin(value = "0.0", inclusive = false, message = "Width must be positive")
-    double width;
-    
-    @DecimalMin(value = "0.0", inclusive = false, message = "Height must be positive")
-    double height;
+
+    @DecimalMin(value = "0.0", inclusive = true, message = "Length must be non-negative")
+    Double length;
+
+    @DecimalMin(value = "0.0", inclusive = true, message = "Width must be non-negative")
+    Double width;
+
+    @DecimalMin(value = "0.0", inclusive = true, message = "Height must be non-negative")
+    Double height;
 
     @ManyToOne
     @JoinColumn(name = "parent_space_id")
@@ -67,7 +71,7 @@ public class Space {
 
     @OneToMany(mappedBy = "parentSpace", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @Builder.Default
-    List<Space> childSpaces = new ArrayList<>();
+    Set<Space> childSpaces = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "space_type_id")

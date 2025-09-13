@@ -11,17 +11,17 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @EnableWebSecurity
 public class SecurityConfig {
-private final String[] PUBLIC_ENDPOINT = {"/api/**"};
+    private final String[] PUBLIC_ENDPOINT = { "/spaces/**" };
 
-     @Bean
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .httpBasic(httpBasic -> httpBasic.disable())
-            .formLogin(formLogin -> formLogin.disable())
-            .authorizeHttpRequests(authorize -> authorize
-                .anyRequest().permitAll()
-            );
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .anyRequest().permitAll());
 
         return http.build();
     }

@@ -1,13 +1,17 @@
 package com.management.building.entity;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import jakarta.persistence.CollectionTable;
+import com.management.building.enums.SpaceFunction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -30,18 +34,28 @@ public class SpaceType {
     @NotBlank(message = "Space type name is required")
     @Column(nullable = false)
     String name;
-    
+
     @Column(length = 1000)
     String description;
-    
-    @ElementCollection
-    @CollectionTable(name = "space_type_functions", joinColumns = @JoinColumn(name = "space_type_name"))
-    @Column(name = "function_name")
-    List<String> functions;
-    
-    @Min(value = 0, message = "Minimum capacity must be non-negative")
-    int minCapacity;
 
-    @OneToMany(mappedBy = "type")
-    List<Space> spaces;
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    @Column(name = "function_type")
+    @Builder.Default
+    Set<SpaceFunction> functions = new HashSet<>();
+
+    @Column(length = 500)
+    String specifications;
+
+    @Column(length = 200)
+    String targetAudience;
+
+    @Builder.Default
+    boolean requiresSpecialAccess = false;
+
+    @Min(value = 0, message = "Maximum capacity must be non-negative")
+    int maxCapacity;
+
+    @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
+    Set<Space> spaces;
 }
