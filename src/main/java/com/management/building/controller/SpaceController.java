@@ -1,12 +1,14 @@
 package com.management.building.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController("/spaces")
+@RestController
+@RequestMapping("/spaces")
 public class SpaceController {
 
-    @GetMapping
+    @GetMapping("")
     public String getHello() {
         return "Hello World";
     }
