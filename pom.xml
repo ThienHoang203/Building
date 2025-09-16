@@ -118,6 +118,13 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<commandlineArgs>--spring.main.banner-mode=console</commandlineArgs>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>

@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.management.building.entity.SpaceType;
 
 public interface SpaceTypeRepository extends JpaRepository<SpaceType, String> {
-
+    boolean existsByName(String name);
 }

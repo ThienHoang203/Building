@@ -1,5 +1,7 @@
 package com.management.building.dto.response;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AccessLevel;
@@ -15,4 +17,5 @@ public class ApiResponse<T> {
     int code;
     String message;
     T data;
+    Map<String, String> errors;
 }
