@@ -1,7 +1,6 @@
 package com.management.building.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -41,7 +40,7 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
                             parent_space_id, space_type_id, level, path, cursor_value
                      FROM FilteredResults
                      WHERE row_num <= :limit
-                     ORDER BY level, name, id
+                     ORDER BY level asc, name, id
                      """, nativeQuery = true)
        List<Object[]> findDescendantsWithPagination(
                      @Param("parentId") Long parentId,
