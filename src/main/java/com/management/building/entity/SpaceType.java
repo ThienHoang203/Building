@@ -1,10 +1,6 @@
 package com.management.building.entity;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.management.building.enums.SpaceFunction;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Min;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,27 +26,27 @@ import lombok.experimental.FieldDefaults;
 @Data
 public class SpaceType {
 
-    @Id
-    String name;
+  @Id
+  String name;
 
-    @Column(length = 1000)
-    String description;
+  @Column(length = 1000)
+  String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "function_type")
-    @ToString.Exclude
-    Set<SpaceFunction> functions;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "function_type")
+  @ToString.Exclude
+  Set<SpaceFunction> functions;
 
-    @Column(length = 500)
-    String specifications;
+  @Column(length = 500)
+  String specifications;
 
-    @Builder.Default
-    boolean requiresSpecialAccess = false;
+  @Builder.Default
+  boolean requiresSpecialAccess = false;
 
-    @Min(value = 0)
-    int maxCapacity;
+  @Min(value = 0)
+  int maxCapacity;
 
-    @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
-    @ToString.Exclude
-    Set<Space> spaces;
+  @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
+  @ToString.Exclude
+  Set<Space> spaces;
 }

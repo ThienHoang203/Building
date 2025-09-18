@@ -16,11 +16,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpaceTypeResponse {
-    String name;
-    String description;
-    Set<SpaceFunction> functions;
-    String specifications;
-    boolean requiresSpecialAccess;
-    int maxCapacity;
-    Set<Space> spaces;
+
+  String name;
+  String description;
+  Set<SpaceFunction> functions;
+  String specifications;
+  boolean requiresSpecialAccess;
+  int maxCapacity;
+  Set<Space> spaces;
 }

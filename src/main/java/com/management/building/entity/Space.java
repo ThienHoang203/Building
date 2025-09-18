@@ -50,10 +50,10 @@ public class Space {
     SpaceStatus status;
 
     @Min(value = 0)
-    int capacity;
+    Integer capacity;
 
     @DecimalMin(value = "0.0", inclusive = false)
-    double area;
+    Double area;
 
     @DecimalMin(value = "0.0", inclusive = true)
     Double length;

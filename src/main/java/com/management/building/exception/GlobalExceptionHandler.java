@@ -15,7 +15,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.metadata.ConstraintDescriptor;
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,62 +30,54 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-  private static final java.util.regex.Pattern PLACEHOLDER_PATTERN =
-    java.util.regex.Pattern.compile("\\{([^}]+)\\}");
+  private static final java.util.regex.Pattern PLACEHOLDER_PATTERN = java.util.regex.Pattern.compile("\\{([^}]+)\\}");
 
   @ExceptionHandler(value = Exception.class)
   public ResponseEntity<ApiResponse<?>> handlingException(Exception exception) {
+
+    log.info("cause: " + exception.getCause().getMessage());
     ErrorCode errorCode = ErrorCode.EXCEPTION_UNCATEGORIZED;
     return ResponseEntity.status(errorCode.getStatusCode()).body(
-      ApiResponse.builder()
-        .code(errorCode.getCode())
-        .message(errorCode.getMessage())
-        .build()
-    );
+        ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
+  }
+
+  @ExceptionHandler(value = NoResourceFoundException.class)
+  public ResponseEntity<ApiResponse<?>> handlingNoResourceFoundException(
+      NoResourceFoundException exception) {
+    log.info(exception.getMessage());
+    ErrorCode errorCode = ErrorCode.PATH_VARIABLE_MISSING_OR_INVALID;
+    return ResponseEntity.status(errorCode.getStatusCode()).body(
+        ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
   }
 
   @ExceptionHandler(value = HttpMessageNotReadableException.class)
   public ResponseEntity<ApiResponse<?>> handlingDateFormatException(
-    HttpMessageNotReadableException exception
-  ) {
-    ErrorCode errorCode = ErrorCode.DATE_FORMAT_INVALID;
+      HttpMessageNotReadableException exception) {
+    log.info("This is error");
+    ErrorCode errorCode = ErrorCode.JSON_PARSE_ERROR;
     return ResponseEntity.status(errorCode.getStatusCode()).body(
-      ApiResponse.builder()
-        .code(errorCode.getCode())
-        .message(errorCode.getMessage())
-        .build()
-    );
+        ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
   }
 
   @ExceptionHandler(value = AppException.class)
-  public ResponseEntity<ApiResponse<?>> handlingAppException(
-    AppException exception
-  ) {
+  public ResponseEntity<ApiResponse<?>> handlingAppException(AppException exception) {
     ErrorCode errorCode = exception.getErrorCode();
-    return ResponseEntity.status(errorCode.getStatusCode()).body(
-      ApiResponse.builder()
-        .code(errorCode.getCode())
-        .message(exception.getFormattedMessage())
-        .build()
-    );
+    return ResponseEntity.status(errorCode.getStatusCode()).body(ApiResponse.builder()
+        .code(errorCode.getCode()).message(exception.getFormattedMessage()).build());
   }
 
   @ExceptionHandler(value = AuthorizationDeniedException.class)
   public ResponseEntity<ApiResponse<?>> handlingAccessDeniedException(
-    AuthorizationDeniedException exception
-  ) {
+      AuthorizationDeniedException exception) {
     ErrorCode errorCode = ErrorCode.AUTHORIZATION_FAILED;
     return ResponseEntity.status(errorCode.getStatusCode()).body(
-      ApiResponse.builder()
-        .code(errorCode.getCode())
-        .message(errorCode.getMessage())
-        .build()
-    );
+        ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
   }
 
   /**
@@ -94,8 +85,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiResponse<?>> handleValidationExceptions(
-    MethodArgumentNotValidException ex
-  ) {
+      MethodArgumentNotValidException ex) {
     Map<String, ErrorDetail> errors = new HashMap<>();
 
     List<ObjectError> objectErrors = ex.getBindingResult().getAllErrors();
@@ -111,48 +101,29 @@ public class GlobalExceptionHandler {
         if (errorCode != null) {
           // Message is an ErrorCode enum name
           finalMessage = buildErrorMessage(errorCode, fieldError, fieldName);
-          errors.put(
-            fieldName,
-            new ErrorDetail(errorCode.getCode(), finalMessage)
-          );
+          errors.put(fieldName, new ErrorDetail(errorCode.getCode(), finalMessage));
         } else {
           // Use default message or map to appropriate ErrorCode
           errorCode = mapFieldErrorToErrorCode(fieldError);
           finalMessage = buildErrorMessage(errorCode, fieldError, fieldName);
-          errors.put(
-            fieldName,
-            new ErrorDetail(errorCode.getCode(), finalMessage)
-          );
+          errors.put(fieldName, new ErrorDetail(errorCode.getCode(), finalMessage));
         }
 
-        log.debug(
-          "Field: {}, ErrorCode: {}, Message: {}",
-          fieldName,
-          errorCode.name(),
-          finalMessage
-        );
+        log.debug("Field: {}, ErrorCode: {}, Message: {}", fieldName, errorCode.name(),
+            finalMessage);
       }
     }
 
     // Convert to simple map for response
-    Map<String, String> errorMessages = errors
-      .entrySet()
-      .stream()
-      .collect(
-        Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getMessage())
-      );
+    Map<String, String> errorMessages = errors.entrySet().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getMessage()));
 
     ErrorCode errorCodeResponse = ErrorCode.VALIDATION_ERROR;
 
-    ApiResponse<?> response = ApiResponse.builder()
-      .code(errorCodeResponse.getCode())
-      .message(errorCodeResponse.getMessage())
-      .errors(errorMessages)
-      .build();
+    ApiResponse<?> response = ApiResponse.builder().code(errorCodeResponse.getCode())
+        .message(errorCodeResponse.getMessage()).errors(errorMessages).build();
 
-    return ResponseEntity.status(errorCodeResponse.getStatusCode()).body(
-      response
-    );
+    return ResponseEntity.status(errorCodeResponse.getStatusCode()).body(response);
   }
 
   /**
@@ -161,39 +132,26 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ApiResponse<?>> handleConstraintViolationException(
-    ConstraintViolationException ex
-  ) {
-    Map<String, String> errors = ex
-      .getConstraintViolations()
-      .stream()
-      .collect(
-        Collectors.toMap(
-          violation -> getParameterName(violation),
-          violation -> {
-            String message = violation.getMessage();
-            ErrorCode errorCode = getErrorCodeFromMessage(message);
+      ConstraintViolationException ex) {
+    Map<String, String> errors = ex.getConstraintViolations().stream()
+        .collect(Collectors.toMap(violation -> getParameterName(violation), violation -> {
+          String message = violation.getMessage();
+          ErrorCode errorCode = getErrorCodeFromMessage(message);
 
-            if (errorCode != null) {
-              // Message is an ErrorCode enum name
-              return buildErrorMessage(errorCode, violation);
-            } else {
-              // Map to appropriate ErrorCode
-              errorCode = mapConstraintViolationToErrorCode(violation);
-              return buildErrorMessage(errorCode, violation);
-            }
+          if (errorCode != null) {
+            // Message is an ErrorCode enum name
+            return buildErrorMessage(errorCode, violation);
+          } else {
+            // Map to appropriate ErrorCode
+            errorCode = mapConstraintViolationToErrorCode(violation);
+            return buildErrorMessage(errorCode, violation);
           }
-        )
-      );
+        }));
 
-    ApiResponse<?> response = ApiResponse.builder()
-      .code(ErrorCode.VALIDATION_ERROR.getCode())
-      .message(ErrorCode.VALIDATION_ERROR.getMessage())
-      .errors(errors)
-      .build();
+    ApiResponse<?> response = ApiResponse.builder().code(ErrorCode.VALIDATION_ERROR.getCode())
+        .message(ErrorCode.VALIDATION_ERROR.getMessage()).errors(errors).build();
 
-    return ResponseEntity.status(
-      ErrorCode.VALIDATION_ERROR.getStatusCode()
-    ).body(response);
+    return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getStatusCode()).body(response);
   }
 
   /**
@@ -263,17 +221,12 @@ public class GlobalExceptionHandler {
   /**
    * Map ConstraintViolation to appropriate ErrorCode (fallback)
    */
-  private ErrorCode mapConstraintViolationToErrorCode(
-    ConstraintViolation<?> violation
-  ) {
+  private ErrorCode mapConstraintViolationToErrorCode(ConstraintViolation<?> violation) {
     ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor();
     Annotation annotation = descriptor.getAnnotation();
 
-    if (
-      annotation instanceof NotNull ||
-      annotation instanceof NotBlank ||
-      annotation instanceof NotEmpty
-    ) {
+    if (annotation instanceof NotNull || annotation instanceof NotBlank
+        || annotation instanceof NotEmpty) {
       return ErrorCode.FIELD_REQUIRED;
     } else if (annotation instanceof Size) {
       return ErrorCode.FIELD_SIZE_INVALID;
@@ -293,11 +246,7 @@ public class GlobalExceptionHandler {
   /**
    * Build error message from ErrorCode with placeholders for FieldError
    */
-  private String buildErrorMessage(
-    ErrorCode errorCode,
-    FieldError fieldError,
-    String fieldName
-  ) {
+  private String buildErrorMessage(ErrorCode errorCode, FieldError fieldError, String fieldName) {
     String message = errorCode.getMessage();
     Map<String, Object> placeholders = new HashMap<>();
 
@@ -312,13 +261,9 @@ public class GlobalExceptionHandler {
   }
 
   /**
-   * Build error message from ErrorCode with placeholders for
-   * ConstraintViolation
+   * Build error message from ErrorCode with placeholders for ConstraintViolation
    */
-  private String buildErrorMessage(
-    ErrorCode errorCode,
-    ConstraintViolation<?> violation
-  ) {
+  private String buildErrorMessage(ErrorCode errorCode, ConstraintViolation<?> violation) {
     String message = errorCode.getMessage();
     Map<String, Object> placeholders = new HashMap<>();
 
@@ -336,10 +281,8 @@ public class GlobalExceptionHandler {
   /**
    * Extract validation parameters from FieldError
    */
-  private void extractValidationParameters(
-    FieldError fieldError,
-    Map<String, Object> placeholders
-  ) {
+  private void extractValidationParameters(FieldError fieldError,
+      Map<String, Object> placeholders) {
     Object[] args = fieldError.getArguments();
     if (args == null || args.length == 0) {
       return;
@@ -378,7 +321,14 @@ public class GlobalExceptionHandler {
         break;
       case "ValidEnum":
         if (args.length >= 1) {
-          placeholders.put("values", args[2]);
+          Object temp = args[2];
+          try {
+            Class<?> clazz = Class.forName(temp.getClass().getName());
+          } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+          }
+          log.info("class name: " + temp.toString());
+          placeholders.put("values", temp);
         }
         break;
     }
@@ -387,10 +337,8 @@ public class GlobalExceptionHandler {
   /**
    * Extract validation parameters from ConstraintViolation
    */
-  private void extractValidationParameters(
-    ConstraintViolation<?> violation,
-    Map<String, Object> placeholders
-  ) {
+  private void extractValidationParameters(ConstraintViolation<?> violation,
+      Map<String, Object> placeholders) {
     ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor();
     Map<String, Object> attributes = descriptor.getAttributes();
     Annotation annotation = descriptor.getAnnotation();
@@ -423,10 +371,7 @@ public class GlobalExceptionHandler {
   /**
    * Replace placeholders in message
    */
-  private String replacePlaceholders(
-    String message,
-    Map<String, Object> placeholders
-  ) {
+  private String replacePlaceholders(String message, Map<String, Object> placeholders) {
     if (message == null) {
       return "";
     }
@@ -439,26 +384,12 @@ public class GlobalExceptionHandler {
       Object value = placeholders.get(placeholder);
 
       if (value != null) {
-        Class<?> classType = value.getClass();
-        if (classType.isEnum()) {
-          Object[] constants = classType.getEnumConstants();
-
-          matcher.appendReplacement(
-            result,
-            java.util.regex.Matcher.quoteReplacement("")
-          );
-        } else {
-          matcher.appendReplacement(
-            result,
-            java.util.regex.Matcher.quoteReplacement(value.toString())
-          );
-        }
+        matcher.appendReplacement(result,
+            java.util.regex.Matcher.quoteReplacement(value.toString()));
       } else {
         // Keep placeholder if no value found
-        matcher.appendReplacement(
-          result,
-          java.util.regex.Matcher.quoteReplacement(matcher.group(0))
-        );
+        matcher.appendReplacement(result,
+            java.util.regex.Matcher.quoteReplacement(matcher.group(0)));
       }
     }
 
@@ -480,24 +411,15 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(MissingServletRequestParameterException.class)
   public ResponseEntity<ApiResponse<?>> handleMissingServletRequestParameter(
-    MissingServletRequestParameterException ex
-  ) {
+      MissingServletRequestParameterException ex) {
     Map<String, Object> placeholders = new HashMap<>();
     placeholders.put("field", ex.getParameterName());
 
-    String message = replacePlaceholders(
-      ErrorCode.FIELD_REQUIRED.getMessage(),
-      placeholders
-    );
+    String message = replacePlaceholders(ErrorCode.FIELD_REQUIRED.getMessage(), placeholders);
 
-    ApiResponse<?> response = ApiResponse.builder()
-      .code(ErrorCode.FIELD_REQUIRED.getCode())
-      .message(message)
-      .build();
+    ApiResponse<?> response = ApiResponse.builder().code(ErrorCode.FIELD_REQUIRED.getCode()).message(message).build();
 
-    return ResponseEntity.status(ErrorCode.FIELD_REQUIRED.getStatusCode()).body(
-      response
-    );
+    return ResponseEntity.status(ErrorCode.FIELD_REQUIRED.getStatusCode()).body(response);
   }
 
   /**

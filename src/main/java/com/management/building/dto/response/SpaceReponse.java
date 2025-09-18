@@ -2,8 +2,8 @@ package com.management.building.dto.response;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.management.building.entity.Space;
-import com.management.building.entity.SpaceType;
 import com.management.building.enums.SpaceStatus;
 
 import lombok.AccessLevel;
@@ -14,26 +14,35 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpaceReponse {
-    String id;
 
-    String name;
+  Long id;
 
-    SpaceStatus status;
+  String name;
 
-    int capacity;
+  SpaceStatus status;
 
-    double area;
+  Integer capacity;
 
-    Double length;
+  Double area;
 
-    Double width;
+  Double length;
 
-    Double height;
+  Double width;
 
-    Space parentSpace;
+  Double height;
 
-    Set<Space> childSpaces;
+  Space parentSpace;
 
-    SpaceType type;
+  Set<Space> childSpaces;
+
+  SpaceTypeResponse type;
+
+  // fields to replace Lazy load in Space entity
+  Long parentSpaceId;
+
+  String spaceTypeName;
+
+  Set<Long> childSpaceIds;
 }
