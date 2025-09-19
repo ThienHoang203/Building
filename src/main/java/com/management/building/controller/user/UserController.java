@@ -1,4 +1,4 @@
-package com.management.building.controller;
+package com.management.building.controller.user;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

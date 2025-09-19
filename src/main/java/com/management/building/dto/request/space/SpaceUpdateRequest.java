@@ -1,13 +1,13 @@
-package com.management.building.dto.request;
+package com.management.building.dto.request.space;
 
-import com.management.building.enums.SpaceStatus;
+import java.util.Set;
+
+import com.management.building.enums.space.SpaceStatus;
 import com.management.building.validators.ValidEnum;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -16,18 +16,22 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SpaceCreateRequest {
-    @NotBlank
-    @NotNull
+public class SpaceUpdateRequest {
+    // @NotBlank
+    @Nullable
     String name;
 
-    @NotNull
+    // @NotBlank
+    @Nullable
     String spaceTypeName;
 
     @Nullable
     Long parentSpaceId;
 
-    @ValidEnum(enumClass = SpaceStatus.class, ignoreCase = true, allowNull = false)
+    @Nullable
+    Set<Long> childSpaceIds;
+
+    @ValidEnum(enumClass = SpaceStatus.class, ignoreCase = true, allowNull = true)
     SpaceStatus status;
 
     @Min(value = 0)

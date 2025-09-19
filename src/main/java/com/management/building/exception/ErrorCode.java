@@ -88,7 +88,7 @@ public enum ErrorCode {
                         7011,
                         "The collection must not contain any null value",
                         HttpStatus.BAD_REQUEST),
-        PARENT_SAME_CHILD_ID(
+        PARENT_HAS_SAME_CHILD_ID(
                         7011, "Paren can not have same id with child",
                         HttpStatus.CONFLICT),
         PATH_VARIABLE_MISSING_OR_INVALID(

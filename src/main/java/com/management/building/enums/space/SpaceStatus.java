@@ -1,4 +1,4 @@
-package com.management.building.enums;
+package com.management.building.enums.space;
 
 import lombok.AccessLevel;
 import lombok.Getter;

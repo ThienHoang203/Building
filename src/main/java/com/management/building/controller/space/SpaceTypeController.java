@@ -1,17 +1,17 @@
-package com.management.building.controller;
+package com.management.building.controller.space;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.management.building.dto.request.SpaceTypeCreateRequest;
-import com.management.building.dto.request.SpaceTypeUpdateRequest;
+import com.management.building.dto.request.space.SpaceTypeCreateRequest;
+import com.management.building.dto.request.space.SpaceTypeUpdateRequest;
 import com.management.building.dto.response.ApiResponse;
-import com.management.building.dto.response.SpaceTypeResponse;
+import com.management.building.dto.response.space.SpaceTypeResponse;
 import com.management.building.exception.AppException;
 import com.management.building.exception.ErrorCode;
-import com.management.building.service.SpaceTypeService;
+import com.management.building.service.space.SpaceTypeServiceImplement;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -36,19 +36,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SpaceTypeController {
-    SpaceTypeService spaceTypeService;
+    SpaceTypeServiceImplement spaceTypeService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<SpaceTypeResponse> create(
-            @RequestBody @Valid SpaceTypeCreateRequest requestBody) {
-
-        if (spaceTypeService.existsByName(requestBody.getName())) {
-            throw new AppException(ErrorCode.SPACE_TYPE_NAME_EXISTS);
-        }
-
+    public ApiResponse<SpaceTypeResponse> create(@RequestBody @Valid SpaceTypeCreateRequest requestBody) {
         var data = spaceTypeService.create(requestBody);
-
         return ApiResponse.<SpaceTypeResponse>builder().code(201).data(data).build();
     }
 
@@ -73,6 +66,17 @@ public class SpaceTypeController {
 
     @GetMapping("/{name}")
     public ApiResponse<SpaceTypeResponse> getByName(
+            @PathVariable @NotBlank String name) {
+        SpaceTypeResponse response = spaceTypeService.getSpaceTypeByName(name);
+        return ApiResponse
+                .<SpaceTypeResponse>builder()
+                .code(200)
+                .data(response)
+                .build();
+    }
+
+    @GetMapping("/{name}/spaces")
+    public ApiResponse<SpaceTypeResponse> getByNameWithSpaces(
             @PathVariable @NotBlank String name) {
         SpaceTypeResponse response = spaceTypeService.getSpaceTypeByName(name);
         return ApiResponse

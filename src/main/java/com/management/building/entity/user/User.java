@@ -1,4 +1,4 @@
-package com.management.building.entity;
+package com.management.building.entity.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,5 +31,4 @@ public class User {
     String password;
     @Column(nullable = false)
     String name;
-
 }

@@ -1,9 +1,10 @@
-package com.management.building.controller;
+package com.management.building.controller.space;
 
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,14 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.management.building.dto.request.SpaceCreateRequest;
-import com.management.building.dto.request.SpaceUpdateRequest;
+import com.management.building.dto.request.space.SpaceCreateRequest;
+import com.management.building.dto.request.space.SpaceUpdateRequest;
 import com.management.building.dto.response.ApiResponse;
-import com.management.building.dto.response.SpaceFlatResponse;
-import com.management.building.dto.response.SpacePaginationResponse;
-import com.management.building.dto.response.SpaceReponse;
-import com.management.building.dto.response.SpaceTreeResponse;
-import com.management.building.service.SpaceService;
+import com.management.building.dto.response.space.SpaceFlatResponse;
+import com.management.building.dto.response.space.SpacePaginationResponse;
+import com.management.building.dto.response.space.SpaceReponse;
+import com.management.building.dto.response.space.SpaceTreeResponse;
+import com.management.building.service.space.SpaceServiceImplement;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -38,13 +39,14 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class SpaceController {
-    SpaceService spaceService;
+    SpaceServiceImplement spaceService;
 
     @GetMapping
     public ApiResponse<List<SpaceReponse>> getAll() {
 
-        var data = spaceService.getAll(false);
+        var data = spaceService.getAll();
 
         return ApiResponse
                 .<List<SpaceReponse>>builder()
@@ -103,32 +105,33 @@ public class SpaceController {
                 .build();
     }
 
-    @GetMapping("/{id}/descendants")
-    public ResponseEntity<SpacePaginationResponse<?>> getDescendants(
+    @GetMapping("/{id}/childrens")
+    public ResponseEntity<SpacePaginationResponse<?>> getChildSpaces(
             @PathVariable Long id,
             @RequestParam(defaultValue = "flat") String format,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) @Min(1) @Max(500) Integer limit,
             @RequestParam(required = false) @Min(1) @Max(20) Integer maxDepth,
+            @RequestParam(defaultValue = "DESC") @Min(1) @Max(20) String sortOrder,
             @RequestParam(defaultValue = "false") Boolean lazy) {
 
         if ("nested".equals(format)) {
             SpacePaginationResponse<SpaceTreeResponse> response = spaceService
-                    .getDescendantsNested(id, maxDepth, lazy);
+                    .getChildSpacesNested(id, maxDepth, lazy, sortOrder.toUpperCase());
             return ResponseEntity.ok(response);
         } else {
             SpacePaginationResponse<SpaceFlatResponse> response = spaceService
-                    .getDescendantsFlat(id, cursor, limit, maxDepth);
+                    .getChildSpacesFlat(id, cursor, limit, maxDepth, sortOrder.toUpperCase());
             return ResponseEntity.ok(response);
         }
     }
 
-    @GetMapping("/{id}/ancestors")
-    public ResponseEntity<SpacePaginationResponse<SpaceFlatResponse>> getAncestors(
+    @GetMapping("/{id}/parents")
+    public ResponseEntity<SpacePaginationResponse<SpaceFlatResponse>> getParentSpaces(
             @PathVariable Long id,
             @RequestParam(required = false) @Min(1) @Max(20) Integer maxDepth) {
 
-        SpacePaginationResponse<SpaceFlatResponse> response = spaceService.getAncestors(id, maxDepth);
+        SpacePaginationResponse<SpaceFlatResponse> response = spaceService.getParentSpaces(id, maxDepth);
         return ResponseEntity.ok(response);
     }
 }

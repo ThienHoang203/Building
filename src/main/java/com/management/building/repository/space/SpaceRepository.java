@@ -1,4 +1,4 @@
-package com.management.building.repository;
+package com.management.building.repository.space;
 
 import java.util.List;
 
@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.management.building.entity.Space;
+import com.management.building.entity.space.Space;
+import com.management.building.entity.space.SpaceType;
 
 public interface SpaceRepository extends JpaRepository<Space, Long> {
 
@@ -32,7 +33,7 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
                      FilteredResults AS (
                          SELECT *,
                                 CONCAT(CAST(level AS VARCHAR), ':', name, ':', CAST(id AS VARCHAR)) as cursor_value,
-                                ROW_NUMBER() OVER (ORDER BY level, name, id) as row_num
+                                ROW_NUMBER() OVER (ORDER BY level :sortOrder, name :sortOrder, id :sortOrder) as row_num
                          FROM SpaceDescendants
                          WHERE (:cursor IS NULL OR CONCAT(CAST(level AS VARCHAR), ':', name, ':', CAST(id AS VARCHAR)) > :cursor)
                      )
@@ -40,13 +41,14 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
                             parent_space_id, space_type_id, level, path, cursor_value
                      FROM FilteredResults
                      WHERE row_num <= :limit
-                     ORDER BY level asc, name, id
+                     ORDER BY level :sortOrder, name :sortOrder, id :sortOrder
                      """, nativeQuery = true)
-       List<Object[]> findDescendantsWithPagination(
+       List<Object[]> findChildSpacessWithPagination(
                      @Param("parentId") Long parentId,
                      @Param("maxDepth") Integer maxDepth,
                      @Param("cursor") String cursor,
-                     @Param("limit") Integer limit);
+                     @Param("limit") Integer limit,
+                     @Param("sortOrder") String sortOrder);
 
        @Query(value = """
                      WITH SpaceAncestors AS (
@@ -73,7 +75,7 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
                      FROM SpaceAncestors
                      ORDER BY level DESC
                      """, nativeQuery = true)
-       List<Object[]> findAncestors(@Param("spaceId") Long spaceId, @Param("maxDepth") Integer maxDepth);
+       List<Object[]> findParentSpaces(@Param("spaceId") Long spaceId, @Param("maxDepth") Integer maxDepth);
 
        boolean existsByName(String name);
 }

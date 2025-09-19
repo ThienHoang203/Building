@@ -1,13 +1,15 @@
-package com.management.building.dto.response;
+package com.management.building.dto.response.space;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
@@ -33,10 +35,11 @@ public class SpacePaginationResponse<T> {
     @Data
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class HierarchyMeta {
-        private Long rootId;
-        private Integer maxDepth;
-        private Integer totalNodes;
-        private String format; // "flat" or "nested"
+        Long rootId;
+        Integer maxDepth;
+        Integer totalNodes;
+        String format; // "flat" or "nested"
     }
 }
