@@ -1,6 +1,5 @@
 package com.management.building.dto.request.space;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import lombok.AccessLevel;

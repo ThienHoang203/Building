@@ -1,22 +1,38 @@
 package com.management.building.service.space;
 
+import java.util.List;
+
+import com.management.building.dto.request.space.SpaceCreateRequest;
+import com.management.building.dto.request.space.SpaceUpdateRequest;
+import com.management.building.dto.response.space.SpaceHierarchyResponse;
+import com.management.building.dto.response.space.SpaceResponse;
+import com.management.building.dto.response.space.SpaceWithChildrenResponse;
+import com.management.building.enums.space.LoadingHierarchyMode;
+import com.management.building.enums.space.SpaceStatus;
+import com.management.building.enums.space.UpdateParentMode;
+
 public interface SpaceService {
-        // public List<SpaceReponse> getAll();
+        SpaceResponse create(SpaceCreateRequest request);
 
-        // SpaceReponse getById(Long id);
+        List<SpaceResponse> getAll();
 
-        // SpaceReponse create(SpaceCreateRequest requestBody);
+        SpaceResponse getById(Long id);
 
-        // SpaceReponse update(Long id, SpaceUpdateRequest requestBody);
+        List<SpaceResponse> getByStatus(SpaceStatus status);
 
-        // void delete(Long id);
+        List<SpaceResponse> getByTypeName(String typeName);
 
-        // SpacePaginationResponse<SpaceFlatResponse> getChildSpacesFlat(Long parentId, String cursor, Integer limit,
-        //                 Integer maxDepth, String sortOrder);
+        SpaceResponse update(Long id, SpaceUpdateRequest request);
 
-        // SpacePaginationResponse<SpaceTreeResponse> getChildSpacesNested(Long parentId, Integer maxDepth,
-        //                 Boolean lazy, String sortOrder);
+        SpaceResponse updateStatus(Long id, SpaceStatus status);
 
-        // SpacePaginationResponse<SpaceFlatResponse> getParentSpaces(Long spaceId, Integer maxDepth);
+        SpaceResponse updateParent(Long id, Long parentId, UpdateParentMode mode);
 
+        void delete(Long id);
+
+        List<SpaceHierarchyResponse> getParents(Long id, LoadingHierarchyMode mode);
+
+        SpaceWithChildrenResponse getChildren(Long id);
+
+        List<SpaceResponse> getRootSpaces();
 }

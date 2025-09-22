@@ -1,80 +1,101 @@
 package com.management.building.repository.space;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.management.building.entity.space.Space;
+import com.management.building.enums.space.SpaceStatus;
 
 public interface SpaceRepository extends JpaRepository<Space, Long> {
 
+       @Query("SELECT s FROM Space s LEFT JOIN FETCH s.parent LEFT JOIN FETCH s.type WHERE s.id = :id")
+       Optional<Space> findByIdWithDetails(@Param("id") Long id);
+
+       @Query("SELECT s FROM Space s LEFT JOIN FETCH s.children WHERE s.id = :id")
+       Optional<Space> findByIdWithChildren(@Param("id") Long id);
+
+       @Query("SELECT s FROM Space s WHERE s.status = :status ORDER BY s.name")
+       List<Space> findByStatus(@Param("status") SpaceStatus status);
+
+       @Query("SELECT s FROM Space s WHERE s.type.name = :typeName ORDER BY s.name")
+       List<Space> findByTypeName(@Param("typeName") String typeName);
+
+       @Query("SELECT COUNT(s) FROM Space s WHERE s.parent.id = :parentId")
+       Long countByParentId(@Param("parentId") Long parentId);
+
+       @Query("SELECT COUNT(s) FROM Space s WHERE s.type.name = :typeName")
+       Long countByTypeName(@Param("typeName") String typeName);
+
+       @Query("SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END FROM Space s WHERE s.name = :name")
+       boolean existsByName(@Param("name") String name);
+
        @Query(value = """
-                     WITH SpaceDescendants AS (
-                         -- Base case: direct children
-                         SELECT s.id, s.name, s.status, s.capacity, s.area, s.length, s.width, s.height,
-                                s.parent_space_id, s.space_type_id, 1 as level,
-                                CAST(CONCAT('/', CAST(s.id AS VARCHAR)) AS VARCHAR(1000)) as path
-                         FROM space s
-                         WHERE s.parent_space_id = :parentId
+                     WITH SpaceHierarchy AS (
+                         SELECT id, name, status, parent_id, type_name,
+                                CAST(CONCAT('/', id) AS VARCHAR(1000)) as path,
+                                0 as depth,
+                                0 as level
+                         FROM space
+                         WHERE id = :currentId
 
                          UNION ALL
 
-                         -- Recursive case: children of children
-                         SELECT s.id, s.name, s.status, s.capacity, s.area, s.length, s.width, s.height,
-                                s.parent_space_id, s.space_type_id, sd.level + 1,
-                                CAST(CONCAT(sd.path, '/', CAST(s.id AS VARCHAR)) AS VARCHAR(1000))
+                         SELECT s.id, s.name, s.status, s.parent_id, s.type_name,
+                                CAST(CONCAT('/', s.id, sh.path) AS VARCHAR(1000)) as path,
+                                sh.depth + 1 as depth,
+                                sh.level + 1 as level
                          FROM space s
-                         INNER JOIN SpaceDescendants sd ON s.parent_space_id = sd.id
-                         WHERE sd.level < :maxDepth
-                     ),
-                     FilteredResults AS (
-                         SELECT *,
-                                CONCAT(CAST(level AS VARCHAR), ':', name, ':', CAST(id AS VARCHAR)) as cursor_value,
-                                ROW_NUMBER() OVER (ORDER BY level :sortOrder, name :sortOrder, id :sortOrder) as row_num
-                         FROM SpaceDescendants
-                         WHERE (:cursor IS NULL OR CONCAT(CAST(level AS VARCHAR), ':', name, ':', CAST(id AS VARCHAR)) > :cursor)
+                         INNER JOIN SpaceHierarchy sh ON sh.parent_id = s.id
+                         WHERE s.id IS NOT NULL
                      )
-                     SELECT id, name, status, capacity, area, length, width, height,
-                            parent_space_id, space_type_id, level, path, cursor_value
-                     FROM FilteredResults
-                     WHERE row_num <= :limit
-                     ORDER BY level :sortOrder, name :sortOrder, id :sortOrder
+                     SELECT id, name, status, level, depth, path
+                     FROM SpaceHierarchy
+                     ORDER BY depth ASC, name ASC
                      """, nativeQuery = true)
-       List<Object[]> findChildSpacessWithPagination(
-                     @Param("parentId") Long parentId,
-                     @Param("maxDepth") Integer maxDepth,
-                     @Param("cursor") String cursor,
-                     @Param("limit") Integer limit,
-                     @Param("sortOrder") String sortOrder);
+       List<Object[]> findParentHierarchy(@Param("currentId") Long currentId);
 
        @Query(value = """
-                     WITH SpaceAncestors AS (
-                         -- Base case: direct parent
-                         SELECT p.id, p.name, p.status, p.capacity, p.area, p.length, p.width, p.height,
-                                p.parent_space_id, p.space_type_id, 1 as level,
-                                CAST(CONCAT('/', CAST(p.id AS VARCHAR)) AS VARCHAR(1000)) as path
-                         FROM space s
-                         JOIN space p ON s.parent_space_id = p.id
-                         WHERE s.id = :spaceId
+                     WITH SpaceHierarchy AS (
+                         SELECT id, name, status, parent_id, type_name,
+                                CAST(CONCAT('/', id) AS VARCHAR(1000)) as path,
+                                0 as depth,
+                                0 as level
+                         FROM space
+                         WHERE id = :currentId
 
                          UNION ALL
 
-                         -- Recursive case: parents of parents
-                         SELECT p.id, p.name, p.status, p.capacity, p.area, p.length, p.width, p.height,
-                                p.parent_space_id, p.space_type_id, sa.level + 1,
-                                CAST(CONCAT('/', CAST(p.id AS VARCHAR), sa.path) AS VARCHAR(1000))
-                         FROM space p
-                         INNER JOIN SpaceAncestors sa ON p.id = sa.parent_space_id
-                         WHERE sa.level < :maxDepth
+                         SELECT s.id, s.name, s.status, s.parent_id, s.type_name,
+                                CAST(CONCAT(sh.path, '/', s.id) AS VARCHAR(1000)) as path,
+                                sh.depth + 1 as depth,
+                                sh.level - 1 as level
+                         FROM space s
+                         INNER JOIN SpaceHierarchy sh ON s.parent_id = sh.id
+                         WHERE s.id IS NOT NULL
                      )
-                     SELECT id, name, status, capacity, area, length, width, height,
-                            parent_space_id, space_type_id, level, path
-                     FROM SpaceAncestors
-                     ORDER BY level DESC
+                     SELECT id, name, status, level, depth, path
+                     FROM SpaceHierarchy
+                     WHERE id != :currentId
+                     ORDER BY depth ASC, name ASC
                      """, nativeQuery = true)
-       List<Object[]> findParentSpaces(@Param("spaceId") Long spaceId, @Param("maxDepth") Integer maxDepth);
+       List<Object[]> findChildHierarchy(@Param("currentId") Long currentId);
 
-       boolean existsByName(String name);
+       @Query("SELECT s FROM Space s LEFT JOIN FETCH s.parent WHERE s.id = :id")
+       Optional<Space> findByIdWithParent(@Param("id") Long id);
+
+       @Query("SELECT s FROM Space s LEFT JOIN FETCH s.parent LEFT JOIN FETCH s.type WHERE s.id = :id")
+       Optional<Space> findByIdWithParentAndType(@Param("id") Long id);
+
+       @Query("SELECT s FROM Space s LEFT JOIN FETCH s.type WHERE s.id = :id")
+       Optional<Space> findByIdWithype(@Param("id") Long id);
+
+       @Query("SELECT s FROM Space s WHERE s.parent IS NULL ORDER BY s.name")
+       List<Space> findRootSpaces();
+
+       @Query("SELECT s FROM Space s WHERE s.parent.id = :parentId ORDER BY s.name")
+       List<Space> findByParentId(@Param("parentId") Long parentId);
 }

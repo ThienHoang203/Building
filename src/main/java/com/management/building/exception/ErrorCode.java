@@ -182,7 +182,15 @@ public enum ErrorCode {
         OPTIMISTIC_LOCKING_FAILURE(
                         9001,
                         "The record you are trying to update has been modified by another transaction. Please reload and try again.",
-                        HttpStatus.CONFLICT);
+                        HttpStatus.CONFLICT),
+        SPACE_CREATE_FAILED(500, "Failed to create space", HttpStatus.INTERNAL_SERVER_ERROR),
+        SPACE_UPDATE_FAILED(500, "Failed to update space", HttpStatus.INTERNAL_SERVER_ERROR),
+        SPACE_IN_USE(409, "Space cannot be deleted because it is in use", HttpStatus.BAD_REQUEST),
+        SPACE_HAS_DIFFERENT_PARENT(409, "Space has a different parent than specified",
+                        HttpStatus.BAD_REQUEST),
+        SPACE_HAS_NO_PARENT(404, "Space has no parent to remove", HttpStatus.BAD_REQUEST),
+        CIRCULAR_DEPENDENCY(409, "Cannot set parent due to circular dependency", HttpStatus.BAD_REQUEST),
+        INVALID_INPUT(400, "Invalid input provided", HttpStatus.BAD_REQUEST);
 
         int code;
         String message;
