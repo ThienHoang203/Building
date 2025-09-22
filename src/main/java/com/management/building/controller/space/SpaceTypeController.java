@@ -7,11 +7,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.management.building.dto.request.space.SpaceTypeCreateRequest;
 import com.management.building.dto.request.space.SpaceTypeUpdateRequest;
+import com.management.building.dto.request.space.SpaceTypeUpdateWithSpacesRequest;
 import com.management.building.dto.response.ApiResponse;
+import com.management.building.dto.response.space.SpaceTypeHierarchyResponse;
 import com.management.building.dto.response.space.SpaceTypeResponse;
-import com.management.building.exception.AppException;
-import com.management.building.exception.ErrorCode;
-import com.management.building.service.space.SpaceTypeServiceImplement;
+import com.management.building.dto.response.space.SpaceTypeWithSpacesResponse;
+import com.management.building.enums.space.LoadingHierarchyMode;
+import com.management.building.enums.space.UpdateListSpacesMode;
+import com.management.building.enums.space.UpdateParentMode;
+import com.management.building.service.space.SpaceTypeService;
+import com.management.building.validators.ValidEnum;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -28,6 +33,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -36,7 +42,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SpaceTypeController {
-    SpaceTypeServiceImplement spaceTypeService;
+    SpaceTypeService spaceTypeService;
+
+    @GetMapping
+    public ApiResponse<List<SpaceTypeResponse>> getAll() {
+        var data = spaceTypeService.getAll();
+        return ApiResponse.<List<SpaceTypeResponse>>builder().code(200).data(data).build();
+    }
+
+    @GetMapping("/{name}")
+    public ApiResponse<SpaceTypeResponse> getByName(@PathVariable @NotBlank String name) {
+        SpaceTypeResponse response = spaceTypeService.getByName(name);
+        return ApiResponse
+                .<SpaceTypeResponse>builder()
+                .code(200)
+                .data(response)
+                .build();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -53,37 +75,40 @@ public class SpaceTypeController {
         return ApiResponse.<SpaceTypeResponse>builder().code(200).data(result).build();
     }
 
-    @GetMapping
-    public ApiResponse<List<SpaceTypeResponse>> search(
-            @RequestParam(defaultValue = "10", name = "pageSize") String pageSize,
-            @RequestParam(defaultValue = "1", name = "pageNumber") String pageNumber,
-            @RequestParam(defaultValue = "unsorted", name = "sortType") String sortType) {
-
-        List<SpaceTypeResponse> reponseData = spaceTypeService.getSpaceTypes();
-
-        return ApiResponse.<List<SpaceTypeResponse>>builder().code(200).data(reponseData).build();
+    @GetMapping("/{name}/parents")
+    public ApiResponse<List<SpaceTypeHierarchyResponse>> getByNameWithParent(@PathVariable @NotBlank String name,
+            @RequestParam(defaultValue = "IMMEDIATE") @ValidEnum(enumClass = LoadingHierarchyMode.class) LoadingHierarchyMode mode) {
+        List<SpaceTypeHierarchyResponse> result = spaceTypeService.getParents(name, mode);
+        return ApiResponse.<List<SpaceTypeHierarchyResponse>>builder().code(200).data(result).build();
     }
 
-    @GetMapping("/{name}")
-    public ApiResponse<SpaceTypeResponse> getByName(
-            @PathVariable @NotBlank String name) {
-        SpaceTypeResponse response = spaceTypeService.getSpaceTypeByName(name);
-        return ApiResponse
-                .<SpaceTypeResponse>builder()
-                .code(200)
-                .data(response)
-                .build();
+    @GetMapping("/{name}/children")
+    public ApiResponse<List<SpaceTypeHierarchyResponse>> getByNameWithChildren(@PathVariable @NotBlank String name) {
+        List<SpaceTypeHierarchyResponse> result = spaceTypeService.getChildren(name);
+        return ApiResponse.<List<SpaceTypeHierarchyResponse>>builder().code(200).data(result).build();
     }
 
     @GetMapping("/{name}/spaces")
-    public ApiResponse<SpaceTypeResponse> getByNameWithSpaces(
-            @PathVariable @NotBlank String name) {
-        SpaceTypeResponse response = spaceTypeService.getSpaceTypeByName(name);
-        return ApiResponse
-                .<SpaceTypeResponse>builder()
-                .code(200)
-                .data(response)
-                .build();
+    public ApiResponse<SpaceTypeWithSpacesResponse> getByNameWithSpaces(@PathVariable @NotBlank String name) {
+        SpaceTypeWithSpacesResponse result = spaceTypeService.getByNameWithSpaces(name);
+        return ApiResponse.<SpaceTypeWithSpacesResponse>builder().code(200).data(result).build();
+    }
+
+    @PatchMapping("/{name}/spaces")
+    public ApiResponse<SpaceTypeWithSpacesResponse> updateWithSpaces(@PathVariable @NotBlank String name,
+            @RequestParam(defaultValue = "ADD") @ValidEnum(enumClass = UpdateListSpacesMode.class, allowNull = true) String mode,
+            @RequestBody SpaceTypeUpdateWithSpacesRequest requestBody) {
+        SpaceTypeWithSpacesResponse result = spaceTypeService.updateWithSpaces(name, UpdateListSpacesMode.valueOf(mode),
+                requestBody);
+        return ApiResponse.<SpaceTypeWithSpacesResponse>builder().code(200).data(result).build();
+    }
+
+    @PatchMapping("/{name}/parent/{parentName}")
+    public ApiResponse<SpaceTypeResponse> changeParent(@PathVariable @NotBlank String name,
+            @PathVariable @NotBlank String parentName,
+            @RequestParam(defaultValue = "NEW") @ValidEnum(enumClass = UpdateParentMode.class) String mode) {
+        var result = spaceTypeService.updateParent(name, parentName, UpdateParentMode.valueOf(mode));
+        return ApiResponse.<SpaceTypeResponse>builder().code(200).data(result).build();
     }
 
     @DeleteMapping("/{name}")

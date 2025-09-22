@@ -84,17 +84,46 @@ public enum ErrorCode {
                         7010,
                         "{field} must be one of: {values}",
                         HttpStatus.BAD_REQUEST),
+        INVALID_PARENT_LEVEL(
+                        7010,
+                        "The parent level can not be less than the current level",
+                        HttpStatus.BAD_REQUEST),
+        INVALID_PARENT_SELF(
+                        7010,
+                        "The parent can not be the same as itself",
+                        HttpStatus.BAD_REQUEST),
         COLLECTION_CONTAIN_NULL(
                         7011,
                         "The collection must not contain any null value",
                         HttpStatus.BAD_REQUEST),
         PARENT_HAS_SAME_CHILD_ID(
-                        7011, "Paren can not have same id with child",
+                        7011, "Parent can not have same id with child",
                         HttpStatus.CONFLICT),
         PATH_VARIABLE_MISSING_OR_INVALID(
                         7012,
                         "the url is missing path or invalid path",
                         HttpStatus.BAD_REQUEST),
+        SAME_OLD_PARENT(
+                        7230,
+                        "The new parent is the same as the old parent",
+                        HttpStatus.BAD_REQUEST),
+        SPACE_TYPE_HAS_NO_PARENT(
+                        7232,
+                        "This space type has no parent",
+                        HttpStatus.BAD_REQUEST),
+        SPACE_TYPE_HAS_DIFFERENT_PARENT(
+                        7014,
+                        "This space type has a different parent",
+                        HttpStatus.CONFLICT),
+        PARENT_IS_IN_CHILD_ID(
+                        7011, "Parent can not be in child list",
+                        HttpStatus.CONFLICT),
+        HAS_CHILDREN(
+                        7011, "Cannot delete because it has children",
+                        HttpStatus.CONFLICT),
+        SPACE_TYPE_IN_USE(
+                        7011, "Cannot delete space type because it is being used by existing spaces",
+                        HttpStatus.CONFLICT),
         JSON_PARSE_ERROR(
                         70012,
                         "Invalid JSON format",
@@ -124,6 +153,12 @@ public enum ErrorCode {
         PARENT_SPACE_NOT_FOUND(
                         6006, "The parent space not found",
                         HttpStatus.NOT_FOUND),
+        PARENT_SPACE_TYPE_NOT_FOUND(
+                        6007, "The parent space type not found",
+                        HttpStatus.NOT_FOUND),
+        LIST_NOT_CONTAIN_ALL(
+                        6100, "The list does not contain all the provided elements",
+                        HttpStatus.NOT_FOUND),
         AUTHENTICATION_FAILED(
                         5000,
                         "Username/Password is invalid",
@@ -139,7 +174,15 @@ public enum ErrorCode {
         VALIDATION_ERROR(
                         4000,
                         "Validation failed",
-                        HttpStatus.BAD_REQUEST);
+                        HttpStatus.BAD_REQUEST),
+        SPACE_TYPE_UPDATE_FAILED(
+                        4000,
+                        "Failed to update space type",
+                        HttpStatus.BAD_REQUEST),
+        OPTIMISTIC_LOCKING_FAILURE(
+                        9001,
+                        "The record you are trying to update has been modified by another transaction. Please reload and try again.",
+                        HttpStatus.CONFLICT);
 
         int code;
         String message;

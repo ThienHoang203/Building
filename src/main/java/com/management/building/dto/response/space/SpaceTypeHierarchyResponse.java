@@ -1,9 +1,6 @@
 package com.management.building.dto.response.space;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.management.building.enums.space.SpaceFunction;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,12 +13,9 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SpaceTypeResponse {
-  String name;
-  String description;
-  Integer level;
-  Set<SpaceFunction> spaceFunctions;
-  String specifications;
-  Boolean requiresSpecialAccess;
-  Integer maxCapacity;
+public class SpaceTypeHierarchyResponse {
+    String name;
+    Integer level;
+    String path;
+    Integer depth;
 }

@@ -4,44 +4,33 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.management.building.enums.space.SpaceFunction;
+import com.management.building.validators.NotBlankOrNull;
+import com.management.building.validators.NullOrRange;
 import com.management.building.validators.ValidEnum;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-@Data
 @Builder
+@Getter
+@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SpaceTypeUpdateRequest {
-  @Size(max = 1000, message = "FIELD_SIZE_INVALID")
-  @Nullable
-  String description;
+    @NotBlankOrNull(nullable = true)
+    String description;
 
-  @ValidEnum(enumClass = SpaceFunction.class, allowNull = true)
-  Set<SpaceFunction> functions;
+    @NotBlankOrNull(nullable = true)
+    String specifications;
 
-  @Size(max = 500, message = "FIELD_MAX_INVALID")
-  @Nullable
-  String specifications;
+    @NullOrRange(min = 0, nullable = true)
+    Integer maxCapacity;
 
-  @Nullable
-  Boolean requiresSpecialAccess;
+    Boolean requiresSpecialAccess;
 
-  @Min(value = 0, message = "FIELD_MIN_INVALID")
-  @Max(value = Integer.MAX_VALUE, message = "FIELD_MAX_INVALID")
-  @Nullable
-  Integer maxCapacity;
-
-  @Min(value = 0, message = "FIELD_MIN_INVALID")
-  @Nullable
-  Long parentSpaceTypeId;
-
-  @Builder.Default
-  Set<Long> childSpaceTypeIds = new HashSet<>();
+    @ValidEnum(enumClass = SpaceFunction.class, allowNull = true, allowEmptySet = true)
+    @Builder.Default
+    Set<SpaceFunction> spaceFunctions = new HashSet<>();
 }

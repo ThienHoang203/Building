@@ -25,4 +25,6 @@ public @interface ValidEnum {
     boolean ignoreCase() default false;
 
     boolean allowNull() default false;
+
+    boolean allowEmptySet() default false;
 }

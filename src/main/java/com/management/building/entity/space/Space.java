@@ -1,6 +1,5 @@
 package com.management.building.entity.space;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.management.building.enums.space.SpaceStatus;
@@ -20,27 +19,24 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Data
-@Entity
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "space", indexes = {
-                @Index(columnList = "parent_space_id, level, name"),
-                @Index(columnList = "space_type_id, status, level"),
-                @Index(columnList = "parent_space_id"),
+                @Index(columnList = "status, name"),
+                @Index(columnList = "status"),
                 @Index(columnList = "name")
 })
 public class Space {
@@ -48,53 +44,28 @@ public class Space {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         Long id;
 
-        @NotBlank
-        @Column(nullable = false)
+        @Column(nullable = false, length = 100)
         String name;
 
         @Enumerated(EnumType.STRING)
-        @NotNull
+        @Column(nullable = false)
         SpaceStatus status;
-
-        @Min(value = 0)
-        Integer capacity;
 
         @DecimalMin(value = "0.0", inclusive = false)
         Double area;
 
-        @DecimalMin(value = "0.0", inclusive = true)
-        Double length;
-
-        @DecimalMin(value = "0.0", inclusive = true)
-        Double width;
-
-        @DecimalMin(value = "0.0", inclusive = true)
-        Double height;
-
-        @Min(value = 0)
-        @Column(name = "level", nullable = false)
-        Integer level;
-
-        @Column(name = "parent_space_id")
-        Long parentSpaceId;
+        Integer capacity;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "parent_space_id", insertable = false, updatable = false)
-        @ToString.Exclude
-        Space parentSpace;
+        @JoinColumn(name = "parent_id", nullable = true)
+        Space parent;
 
-        @OneToMany(mappedBy = "parentSpace", cascade = {
+        @OneToMany(mappedBy = "parent", cascade = {
                         CascadeType.PERSIST,
                         CascadeType.MERGE, }, fetch = FetchType.LAZY)
-        @Builder.Default
-        @ToString.Exclude
-        Set<Space> childSpaces = new LinkedHashSet<>();
-
-        @Column(name = "type_name", nullable = false)
-        String typeName;
+        Set<Space> children;
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "type_name", insertable = false, updatable = false)
-        @ToString.Exclude
+        @JoinColumn(name = "type_name", nullable = false)
         SpaceType type;
 }

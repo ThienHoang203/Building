@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.management.building.entity.space.Space;
-import com.management.building.entity.space.SpaceType;
 
 public interface SpaceRepository extends JpaRepository<Space, Long> {
 
