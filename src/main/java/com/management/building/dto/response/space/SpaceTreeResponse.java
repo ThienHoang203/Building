@@ -9,26 +9,27 @@ import com.management.building.enums.space.SpaceStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-@Data
 @Builder
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SpaceTreeResponse {
     Long id;
+    Integer level;
+    Integer depth;
     String name;
     SpaceStatus status;
     Integer capacity;
     Double area;
     String typeName;
     @Builder.Default
-    List<SpaceTreeResponse> children = new ArrayList<>();
-    // For lazy loading
-    Boolean hasChildren;
-    Integer childrenCount;
+    List<SpaceTreeResponse> childrens = new ArrayList<>();
 }

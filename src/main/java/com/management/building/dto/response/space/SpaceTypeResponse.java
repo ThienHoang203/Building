@@ -1,9 +1,6 @@
 package com.management.building.dto.response.space;
 
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.management.building.enums.space.SpaceFunction;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,8 +17,8 @@ public class SpaceTypeResponse {
   String name;
   String description;
   Integer level;
-  Set<SpaceFunction> spaceFunctions;
   String specifications;
   Boolean requiresSpecialAccess;
   Integer maxCapacity;
+  String parentName;
 }

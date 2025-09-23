@@ -31,13 +31,15 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "space", indexes = {
-                @Index(columnList = "status, name"),
-                @Index(columnList = "status"),
-                @Index(columnList = "name")
+                @Index(name = "ID_status_name", columnList = "status, name"),
+                @Index(name = "ID_parentId_typeName", columnList = "parent_id, type_name"),
+                @Index(name = "ID_status", columnList = "status"),
+                @Index(name = "ID_sname", columnList = "name"),
+                @Index(name = "ID_id_level", columnList = "id, level"),
 })
 public class Space {
         @Id
@@ -60,9 +62,7 @@ public class Space {
         @JoinColumn(name = "parent_id", nullable = true)
         Space parent;
 
-        @OneToMany(mappedBy = "parent", cascade = {
-                        CascadeType.PERSIST,
-                        CascadeType.MERGE, }, fetch = FetchType.LAZY)
+        @OneToMany(mappedBy = "parent", cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY)
         Set<Space> children;
 
         @ManyToOne(fetch = FetchType.LAZY)

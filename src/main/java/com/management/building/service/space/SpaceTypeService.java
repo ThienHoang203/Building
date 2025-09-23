@@ -3,16 +3,10 @@ package com.management.building.service.space;
 import java.util.List;
 
 import com.management.building.dto.request.space.SpaceTypeCreateRequest;
+import com.management.building.dto.request.space.SpaceTypeTreeRequest;
 import com.management.building.dto.request.space.SpaceTypeUpdateRequest;
-import com.management.building.dto.request.space.SpaceTypeUpdateWithSpacesRequest;
-import com.management.building.dto.response.space.SpaceTypeHierarchyResponse;
 import com.management.building.dto.response.space.SpaceTypeResponse;
-import com.management.building.dto.response.space.SpaceTypeWithSpacesResponse;
-import com.management.building.enums.space.LoadingHierarchyMode;
-import com.management.building.enums.space.UpdateListSpacesMode;
-import com.management.building.enums.space.UpdateParentMode;
-
-import jakarta.validation.constraints.NotBlank;
+import com.management.building.dto.response.space.SpaceTypeTreeResponse;
 
 public interface SpaceTypeService {
     SpaceTypeResponse create(SpaceTypeCreateRequest requestBody);
@@ -23,16 +17,9 @@ public interface SpaceTypeService {
 
     SpaceTypeResponse update(String name, SpaceTypeUpdateRequest requestBody);
 
-    SpaceTypeResponse updateParent(String name, String parentName, UpdateParentMode mode);
+    SpaceTypeResponse updateParent(String name, String parentName);
 
     void delete(String name);
 
-    List<SpaceTypeHierarchyResponse> getParents(String name, LoadingHierarchyMode mode);
-
-    List<SpaceTypeHierarchyResponse> getChildren(String name);
-
-    SpaceTypeWithSpacesResponse getByNameWithSpaces(String name);
-
-    SpaceTypeWithSpacesResponse updateWithSpaces(String name, UpdateListSpacesMode updateMode,
-            SpaceTypeUpdateWithSpacesRequest requestBody);
+    SpaceTypeTreeResponse getSpaceTypeTree(String name, SpaceTypeTreeRequest requestBody);
 }

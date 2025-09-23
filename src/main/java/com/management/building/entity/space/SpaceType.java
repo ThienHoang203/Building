@@ -3,18 +3,16 @@ package com.management.building.entity.space;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 
 import java.util.Set;
-
-import com.management.building.enums.space.SpaceFunction;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,43 +26,45 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Getter
 @Setter
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(indexes = {
+                @Index(name = "ID_level", columnList = "level"),
+                @Index(name = "ID_name_level", columnList = "name, level"),
+                @Index(name = "ID_level_name", columnList = "level, name"),
+                @Index(name = "ID_name_parentName_level", columnList = "name, parent_name, level"),
+                @Index(name = "ID_parentName_name_level", columnList = "parent_name, name, level"),
+})
 public class SpaceType {
 
-  @Id
-  @Column(length = 150)
-  String name;
+        @Id
+        @Column(length = 150)
+        String name;
 
-  @Column(nullable = false)
-  Boolean requiresSpecialAccess;
+        @Column(nullable = false)
+        Boolean requiresSpecialAccess;
 
-  @Min(value = 0)
-  @Column(name = "level", nullable = false)
-  Integer level;
+        @Min(value = 0)
+        @Column(name = "level", nullable = false)
+        Integer level;
 
-  @Column(length = 1000)
-  String description;
+        @Column(length = 1000)
+        String description;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "space_functions")
-  Set<SpaceFunction> spaceFunctions;
+        @Column(length = 500)
+        String specifications;
 
-  @Column(length = 500)
-  String specifications;
+        @Min(value = 0)
+        Integer maxCapacity;
 
-  @Min(value = 0)
-  Integer maxCapacity;
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "parent_name", nullable = true)
+        SpaceType parent;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "parent_name", nullable = true)
-  SpaceType parent;
+        @OneToMany(mappedBy = "parent", cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY)
+        Set<SpaceType> children;
 
-  @OneToMany(mappedBy = "parent", cascade = { CascadeType.MERGE,
-      CascadeType.PERSIST }, fetch = FetchType.LAZY)
-  Set<SpaceType> children;
-
-  @OneToMany(mappedBy = "type", fetch = FetchType.LAZY)
-  Set<Space> spaces;
+        @OneToMany(mappedBy = "type", cascade = { CascadeType.REMOVE }, fetch = FetchType.LAZY)
+        Set<Space> spaces;
 }

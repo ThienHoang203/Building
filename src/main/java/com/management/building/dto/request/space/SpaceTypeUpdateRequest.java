@@ -1,12 +1,7 @@
 package com.management.building.dto.request.space;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.management.building.enums.space.SpaceFunction;
 import com.management.building.validators.NotBlankOrNull;
 import com.management.building.validators.NullOrRange;
-import com.management.building.validators.ValidEnum;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,8 +24,4 @@ public class SpaceTypeUpdateRequest {
     Integer maxCapacity;
 
     Boolean requiresSpecialAccess;
-
-    @ValidEnum(enumClass = SpaceFunction.class, allowNull = true, allowEmptySet = true)
-    @Builder.Default
-    Set<SpaceFunction> spaceFunctions = new HashSet<>();
 }

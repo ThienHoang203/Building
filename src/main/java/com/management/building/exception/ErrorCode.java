@@ -153,6 +153,12 @@ public enum ErrorCode {
         PARENT_SPACE_NOT_FOUND(
                         6006, "The parent space not found",
                         HttpStatus.NOT_FOUND),
+        PARENT_SPACE_TYPE_IN_LEVEL_NOT_FOUND(
+                        6006, "There is not parent with this name and level",
+                        HttpStatus.NOT_FOUND),
+        PARENT_SPACE_IN_LEVEL_NOT_FOUND(
+                        6993, "There is not parent with this name and level",
+                        HttpStatus.NOT_FOUND),
         PARENT_SPACE_TYPE_NOT_FOUND(
                         6007, "The parent space type not found",
                         HttpStatus.NOT_FOUND),
@@ -178,6 +184,10 @@ public enum ErrorCode {
         SPACE_TYPE_UPDATE_FAILED(
                         4000,
                         "Failed to update space type",
+                        HttpStatus.BAD_REQUEST),
+        UNSUCCESS(
+                        3234,
+                        "action failed",
                         HttpStatus.BAD_REQUEST),
         OPTIMISTIC_LOCKING_FAILURE(
                         9001,
