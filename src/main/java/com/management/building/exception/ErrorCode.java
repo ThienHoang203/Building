@@ -37,6 +37,22 @@ public enum ErrorCode {
                         8003,
                         "This role name already exists",
                         HttpStatus.CONFLICT),
+        SUPPLER_CODE_EXISTS(
+                        8032,
+                        "This supplier's code already exists",
+                        HttpStatus.CONFLICT),
+        SMART_DEVICE_CATEGORY_NAME_EXISTS(
+                        8132,
+                        "This smart device cateogory's name already exists",
+                        HttpStatus.CONFLICT),
+        SMART_DEVICE_CODE_EXISTS(
+                        8123,
+                        "This smart device code already exists",
+                        HttpStatus.CONFLICT),
+        SMART_DEVICE_NAME_EXISTS(
+                        8124,
+                        "This smart device name already exists",
+                        HttpStatus.CONFLICT),
         SPACE_TYPE_NAME_INVALID(
                         7000,
                         "Space type name is invalid",
@@ -56,6 +72,14 @@ public enum ErrorCode {
         DOB_INVALID(
                         7011,
                         "Date of birth is invalid, must be at least {min} years old",
+                        HttpStatus.BAD_REQUEST),
+        SUPPLIER_NAME_LENGTH_INVALID(
+                        7311,
+                        "Suppplier's name length is invalid, must be in range 100 and 2",
+                        HttpStatus.BAD_REQUEST),
+        SUPPLIER_CODE_LENGTH_INVALID(
+                        7311,
+                        "Suppplier's code length is invalid, must be in range 50 and 3",
                         HttpStatus.BAD_REQUEST),
         FIELD_REQUIRED(
                         7004,
@@ -161,6 +185,15 @@ public enum ErrorCode {
                         HttpStatus.NOT_FOUND),
         PARENT_SPACE_TYPE_NOT_FOUND(
                         6007, "The parent space type not found",
+                        HttpStatus.NOT_FOUND),
+        SUPPLIER_NOT_FOUND(
+                        6017, "The supplier not found",
+                        HttpStatus.NOT_FOUND),
+        SMART_DEVICE_CATEGORY_NOT_FOUND(
+                        6212, "The smart device category not found",
+                        HttpStatus.NOT_FOUND),
+        SMART_DEVICE_NOT_FOUND(
+                        6213, "The smart device  not found",
                         HttpStatus.NOT_FOUND),
         LIST_NOT_CONTAIN_ALL(
                         6100, "The list does not contain all the provided elements",

@@ -2,6 +2,7 @@ package com.management.building.entity.space;
 
 import java.util.Set;
 
+import com.management.building.entity.smartDevice.SmartDevice;
 import com.management.building.enums.space.SpaceStatus;
 
 import jakarta.persistence.CascadeType;
@@ -57,6 +58,9 @@ public class Space {
         Double area;
 
         Integer capacity;
+
+        @OneToMany(fetch = FetchType.LAZY, mappedBy = "space")
+        Set<SmartDevice> devices;
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "parent_id", nullable = true)
