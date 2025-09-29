@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @Validated
@@ -37,7 +36,7 @@ public class SmartDeviceController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public ApiResponse<SmartDeviceResponse> postMethodName(@RequestBody @Valid SmartDeviceCreateRequest requestBody) {
+    public ApiResponse<SmartDeviceResponse> create(@RequestBody @Valid SmartDeviceCreateRequest requestBody) {
         SmartDeviceResponse result = deviceService.create(requestBody);
         return ApiResponse.<SmartDeviceResponse>builder()
                 .code(201)

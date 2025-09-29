@@ -6,9 +6,6 @@ import com.management.building.dto.request.smartDevice.SmartDeviceCreateRequest;
 import com.management.building.dto.request.smartDevice.SmartDeviceUpdateRequest;
 import com.management.building.dto.response.smartDevice.SmartDeviceResponse;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-
 public interface SmartDeviceService {
     SmartDeviceResponse create(SmartDeviceCreateRequest requestBody);
 

@@ -6,8 +6,6 @@ import com.management.building.dto.request.smartDevice.SupplierCreateRequest;
 import com.management.building.dto.request.smartDevice.SupplierUpdateRequest;
 import com.management.building.dto.response.smartDevice.SupplierResponse;
 
-import jakarta.validation.constraints.Min;
-
 public interface SupplierService {
 
     SupplierResponse create(SupplierCreateRequest requestBody);

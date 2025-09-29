@@ -21,3 +21,12 @@ spring:
 springdoc:
   swagger-ui:
     path: /test-docs
+
+tuya:
+  .client-id: eaha85fvurc34vxunsym
+  .client-secret: 31ba283d492a4b989ab9f95f60e30dec
+  .project-code: p1746948925408ydpphf
+  .base-url: https://openapi.tuyaus.com
+  .connect-timeout: 30
+  .read-timeout: 30
+  .write-timeout: 30

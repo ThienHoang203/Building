@@ -1,4 +1,4 @@
-package com.management.building.dto.request.smartDevice;
+package com.management.building.dto.request.tuyaCloud.device;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,6 +10,9 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SmartDeviceUpdateRequest {
-    Long spaceId;
+public class DeviceInProjectRequest {
+    String productIds;
+    String categories;
+    String last_id;
+    Integer page_size;
 }

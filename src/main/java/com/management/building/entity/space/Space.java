@@ -40,7 +40,6 @@ import lombok.experimental.FieldDefaults;
                 @Index(name = "ID_parentId_typeName", columnList = "parent_id, type_name"),
                 @Index(name = "ID_status", columnList = "status"),
                 @Index(name = "ID_sname", columnList = "name"),
-                @Index(name = "ID_id_level", columnList = "id, level"),
 })
 public class Space {
         @Id
