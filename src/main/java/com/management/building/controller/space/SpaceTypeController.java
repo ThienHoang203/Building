@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.management.building.dto.request.space.SpaceTypeCreateRequest;
 import com.management.building.dto.request.space.SpaceTypeTreeRequest;
 import com.management.building.dto.request.space.SpaceTypeUpdateRequest;
-import com.management.building.dto.response.ApiResponse;
+import com.management.building.dto.response.app.ApiResponse;
 import com.management.building.dto.response.space.SpaceTypeResponse;
 import com.management.building.dto.response.space.SpaceTypeTreeResponse;
 import com.management.building.service.space.SpaceTypeService;

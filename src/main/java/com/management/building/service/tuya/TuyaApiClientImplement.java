@@ -44,11 +44,13 @@ public class TuyaApiClientImplement implements TuyaApiClient {
     String baseUrl;
 
     @NonFinal
-    private String cachedAccessToken;
+    String cachedAccessToken;
     @NonFinal
-    private String cachedRefreshToken;
+    String cachedRefreshToken;
     @NonFinal
-    private long tokenExpireTime;
+    long tokenExpireTime;
+    @NonFinal
+    int countTime = 3;
 
     RestTemplate restTemplate;
     ObjectMapper objectMapper;
@@ -56,25 +58,50 @@ public class TuyaApiClientImplement implements TuyaApiClient {
     @Override
     public TuyaReponse<TuyaTokenResult> getAccessToken() {
         String url = "/v1.0/token?grant_type=1";
-        return executeRequest(
+        cachedAccessToken = null;
+        var result = executeRequest(
                 HttpMethod.GET,
                 url,
                 new ParameterizedTypeReference<TuyaReponse<TuyaTokenResult>>() {
                 },
                 null,
                 null);
+
+        if (result.getSuccess()) {
+            cachedAccessToken = result.getResult().getAccessToken();
+            cachedRefreshToken = result.getResult().getRefreshToken();
+            // Set thời gian hết hạn (trừ đi 5 phút để đảm bảo refresh trước khi hết hạn)
+            tokenExpireTime = System.currentTimeMillis() +
+                    (result.getResult().getExpireTime() - 300) * 1000L;
+            log.info("New access token obtained, expires in {} seconds", result.getResult().getExpireTime());
+        } else {
+            throw new RuntimeException("Failed to obtain access token");
+        }
+        return result;
     }
 
     @Override
     public TuyaReponse<TuyaTokenResult> refreshAccessToken(String refreshToken) {
+        if (refreshToken == null) {
+            throw new RuntimeException("the refresh token is null");
+        }
         String url = "/v1.0/token/" + refreshToken;
-        return executeRequest(
+        cachedAccessToken = null;
+        TuyaReponse<TuyaTokenResult> result = executeRequest(
                 HttpMethod.GET,
                 url,
                 new ParameterizedTypeReference<TuyaReponse<TuyaTokenResult>>() {
                 },
                 null,
                 null);
+
+        if (!result.getSuccess()) {
+            throw new RuntimeException(
+                    result.getMsg() + ", code: " + result.getCode() + ". Maybe, should get access token!");
+        }
+        cachedAccessToken = result.getResult().getAccessToken();
+        cachedRefreshToken = result.getResult().getRefreshToken();
+        return result;
     }
 
     @Override
@@ -153,20 +180,21 @@ public class TuyaApiClientImplement implements TuyaApiClient {
             // Check if token expired
             if (result != null && !result.getSuccess() && isTokenExpiredError(result)) {
                 log.info("Access token expired, refreshing...");
+
                 refreshAccessToken();
                 // Retry request với token mới
                 return executeRequest(method, url, responseType, requestBody, customHeaders);
             }
             if (result != null && result.getSuccess()) {
-                log.debug("API call successful: {}", url);
+                log.info("API call successful: {}", url);
             } else {
-                log.warn("API call failed: {}, Error: {}", url,
+                log.info("API call failed: {}, Error: {}", url,
                         result != null ? result.getMsg() : "Unknown error");
             }
             return result;
 
         } catch (Exception e) {
-            log.error("Error calling Tuya API: {} {}", method, url, e);
+            log.info("Error calling Tuya API: {} {}", method, url, e);
             throw new RuntimeException("Error calling Tuya API: " + url, e);
         }
     }
@@ -180,7 +208,7 @@ public class TuyaApiClientImplement implements TuyaApiClient {
         urlBuilder.append("?");
 
         params.forEach((key, value) -> {
-            if (value != null && !value.isEmpty()) {
+            if (value != null) {
                 urlBuilder.append(key).append("=").append(value).append("&");
             }
         });
@@ -215,10 +243,11 @@ public class TuyaApiClientImplement implements TuyaApiClient {
             String stringToSign = method + "\n" + contentHash + "\n" + "\n" + url;
             String str = clientId + (cachedAccessToken != null ? cachedAccessToken
                     : "") + timestamp + nonce + stringToSign;
-            log.debug("StringToSign: {}", stringToSign);
+            log.warn("StringToSign: {}", stringToSign);
+            log.warn("AccessToken: {}", cachedAccessToken);
             return hmacSha256(str, clientSecret);
         } catch (Exception e) {
-            log.error("Error creating signature", e);
+            log.warn("Error creating signature", e);
             throw new RuntimeException("Error creating signature", e);
         }
     }
@@ -263,41 +292,11 @@ public class TuyaApiClientImplement implements TuyaApiClient {
     private void refreshAccessToken() {
         if (cachedRefreshToken == null) {
             log.warn("No refresh token available, fetching new access token");
-            fetchNewAccessToken();
+            getAccessToken();
             return;
         }
 
-        TuyaReponse<TuyaTokenResult> tokenResponse = refreshAccessToken(cachedRefreshToken);
-
-        if (tokenResponse != null && tokenResponse.getSuccess()) {
-            TuyaTokenResult tokenResult = tokenResponse.getResult();
-            cachedAccessToken = tokenResult.getAccessToken();
-            cachedRefreshToken = tokenResult.getRefreshToken();
-            tokenExpireTime = System.currentTimeMillis() +
-                    (tokenResult.getExpireTime() - 300) * 1000L;
-
-            log.info("Access token refreshed successfully");
-        } else {
-            log.error("Failed to refresh token, fetching new token");
-            fetchNewAccessToken();
-        }
+        refreshAccessToken(cachedRefreshToken);
     }
 
-    private void fetchNewAccessToken() {
-        TuyaReponse<TuyaTokenResult> tokenResponse = getAccessToken();
-
-        if (tokenResponse != null && tokenResponse.getSuccess()) {
-            TuyaTokenResult tokenResult = tokenResponse.getResult();
-            cachedAccessToken = tokenResult.getAccessToken();
-            cachedRefreshToken = tokenResult.getRefreshToken();
-
-            // Set thời gian hết hạn (trừ đi 5 phút để đảm bảo refresh trước khi hết hạn)
-            tokenExpireTime = System.currentTimeMillis() +
-                    (tokenResult.getExpireTime() - 300) * 1000L;
-
-            log.info("New access token obtained, expires in {} seconds", tokenResult.getExpireTime());
-        } else {
-            throw new RuntimeException("Failed to obtain access token");
-        }
-    }
 }

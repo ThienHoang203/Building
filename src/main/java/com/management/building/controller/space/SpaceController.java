@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.management.building.dto.request.space.SpaceCreateRequest;
 import com.management.building.dto.request.space.SpaceTreeRequest;
 import com.management.building.dto.request.space.SpaceUpdateRequest;
-import com.management.building.dto.response.ApiResponse;
+import com.management.building.dto.response.app.ApiResponse;
 import com.management.building.dto.response.space.SpaceResponse;
 import com.management.building.dto.response.space.SpaceTreeResponse;
 import com.management.building.service.space.SpaceService;

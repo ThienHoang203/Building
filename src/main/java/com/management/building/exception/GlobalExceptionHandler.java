@@ -1,7 +1,5 @@
 package com.management.building.exception;
 
-import com.management.building.dto.response.ApiResponse;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
@@ -11,25 +9,26 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import com.management.building.dto.response.app.ApiResponse;
+
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
   // private static final java.util.regex.Pattern PLACEHOLDER_PATTERN = java.util.regex.Pattern.compile("\\{([^}]+)\\}");
 
-  @ExceptionHandler(value = Exception.class)
-  public ResponseEntity<ApiResponse<?>> handlingException(Exception exception) {
-
-    log.info("cause: " + exception.getCause().getMessage());
+  @ExceptionHandler(value = RuntimeException.class)
+  public ResponseEntity<ApiResponse<?>> handlingRuntimeException(RuntimeException exception) {
     ErrorCode errorCode = ErrorCode.EXCEPTION_UNCATEGORIZED;
+    log.error("error: ", exception);
     return ResponseEntity.status(errorCode.getStatusCode()).body(
-        ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
+        ApiResponse.builder().code(errorCode.getCode())
+            .message(exception.getMessage() != null ? exception.getMessage() : errorCode.getMessage()).build());
   }
 
   @ExceptionHandler(value = NoResourceFoundException.class)
   public ResponseEntity<ApiResponse<?>> handlingNoResourceFoundException(
       NoResourceFoundException exception) {
-    log.info(exception.getMessage());
     ErrorCode errorCode = ErrorCode.PATH_VARIABLE_MISSING_OR_INVALID;
     return ResponseEntity.status(errorCode.getStatusCode()).body(
         ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
@@ -38,7 +37,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(value = HttpMessageNotReadableException.class)
   public ResponseEntity<ApiResponse<?>> handlingDateFormatException(
       HttpMessageNotReadableException exception) {
-    log.info("This is error");
     ErrorCode errorCode = ErrorCode.JSON_PARSE_ERROR;
     return ResponseEntity.status(errorCode.getStatusCode()).body(
         ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build());
@@ -46,6 +44,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(value = AppException.class)
   public ResponseEntity<ApiResponse<?>> handlingAppException(AppException exception) {
+    log.info("htllo2");
     ErrorCode errorCode = exception.getErrorCode();
     return ResponseEntity.status(errorCode.getStatusCode()).body(ApiResponse.builder()
         .code(errorCode.getCode()).message(exception.getFormattedMessage()).build());
