@@ -19,11 +19,22 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DeviceResponse {
 
-    Long id;
-    String code;
+    String id;
+
+    String productId;
+
     String name;
+
     String lat;
+
     String lon;
+
+    String ip;
+
+    String customName;
+
     Boolean isOnline;
+
+    String category;
 
 }

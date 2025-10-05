@@ -3,8 +3,10 @@ package com.management.building.service.device;
 import java.util.List;
 
 import com.management.building.dto.request.device.DeviceCreateRequest;
+import com.management.building.dto.request.device.DeviceUpdateCategoryRequest;
 import com.management.building.dto.request.device.DeviceUpdateRequest;
 import com.management.building.dto.response.device.DeviceResponse;
+import com.management.building.dto.response.device.DeviceResponseWithCategory;
 
 public interface DeviceService {
     DeviceResponse create(DeviceCreateRequest requestBody);
@@ -16,4 +18,6 @@ public interface DeviceService {
     DeviceResponse getById(String id);
 
     List<DeviceResponse> getAll();
+
+    DeviceResponseWithCategory updateCategory(String id, DeviceUpdateCategoryRequest requestBody);
 }

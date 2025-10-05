@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.management.building.dto.request.device.CategoryCreateRequest;
+import com.management.building.dto.request.device.CategoryStatusCreateRequest;
 import com.management.building.dto.response.app.ApiResponse;
 import com.management.building.dto.response.device.CategoryResponse;
+import com.management.building.dto.response.device.CategoryResponseWithStatus;
 import com.management.building.service.device.CategoryService;
 
 import jakarta.validation.Valid;
@@ -30,15 +32,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class CategoryController {
     CategoryService categoryService;
 
-    @PostMapping
-    public ApiResponse<CategoryResponse> create(@RequestBody @Valid CategoryCreateRequest requestBody) {
-        var result = categoryService.create(requestBody);
-        return ApiResponse.<CategoryResponse>builder()
-                .data(result)
-                .isSuccess(true)
-                .build();
-    }
-
     @GetMapping
     public ApiResponse<List<CategoryResponse>> getAll() {
         var result = categoryService.getAll();
@@ -57,6 +50,17 @@ public class CategoryController {
                 .build();
     }
 
+    @GetMapping("/{code}/status")
+    public ApiResponse<CategoryResponseWithStatus> getStatusOfCateogory(@PathVariable String code) {
+
+        var result = categoryService.getStatusOfCategory(code);
+
+        return ApiResponse.<CategoryResponseWithStatus>builder()
+                .data(result)
+                .isSuccess(true)
+                .build();
+    }
+
     @DeleteMapping("/{code}")
     public ApiResponse<Void> deleteByCode(String code) {
         categoryService.deleteByCode(code);
@@ -65,4 +69,36 @@ public class CategoryController {
                 .isSuccess(true)
                 .build();
     }
+
+    @PostMapping
+    public ApiResponse<CategoryResponse> create(@RequestBody @Valid CategoryCreateRequest requestBody) {
+        var result = categoryService.create(requestBody);
+        return ApiResponse.<CategoryResponse>builder()
+                .data(result)
+                .isSuccess(true)
+                .build();
+    }
+
+    @PostMapping("/{code}/status")
+    public ApiResponse<CategoryResponseWithStatus> addStatusOfCateogory(@PathVariable String code,
+            @RequestBody List<CategoryStatusCreateRequest> requestBody) {
+
+        var result = categoryService.addStatusIntoCategory(code, requestBody);
+
+        return ApiResponse.<CategoryResponseWithStatus>builder()
+                .data(result)
+                .isSuccess(true)
+                .build();
+    }
+
+    @PostMapping("/bulk-create")
+    public ApiResponse<List<CategoryResponse>> createBulkCategory(
+            @RequestBody List<CategoryCreateRequest> requestBody) {
+        var result = categoryService.createBulkCategory(requestBody);
+        return ApiResponse.<List<CategoryResponse>>builder()
+                .data(result)
+                .isSuccess(true)
+                .build();
+    }
+
 }

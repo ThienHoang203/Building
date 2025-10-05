@@ -1,7 +1,5 @@
 package com.management.building.dto.response.tuyaCloud.device;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
@@ -14,10 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TuyaLogResult {
-    String device_id;
-    String last_row_key;
-    Boolean has_more;
-    Long total;
-    List<TuyaLogDetail> logs;
+public class TuyaDevicePropertyDetail {
+    String code;
+    Long time;
+    Object value;
+    String custome_name;
+    Integer dp_id;
 }

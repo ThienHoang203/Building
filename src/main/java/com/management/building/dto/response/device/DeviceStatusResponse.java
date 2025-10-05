@@ -1,5 +1,7 @@
 package com.management.building.dto.response.device;
 
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AccessLevel;
@@ -17,10 +19,18 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CategoryResponse {
+public class DeviceStatusResponse {
 
-    String code;
+    Long id;
 
-    String name;
+    String deviceId;
+
+    String statusCode;
+
+    String value;
+
+    LocalDateTime updatedAt;
+
+    Long eventTime;
 
 }

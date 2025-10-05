@@ -4,20 +4,20 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TuyaLogResult {
-    String device_id;
-    String last_row_key;
-    Boolean has_more;
-    Long total;
-    List<TuyaLogDetail> logs;
+public class TuyaStatusOfMulDevicesResponse {
+    String id;
+    List<TuyaStatusResponse> status;
 }

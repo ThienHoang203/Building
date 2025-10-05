@@ -1,0 +1,62 @@
+{"properties": [
+  {
+    "name": "tuya..client-id",
+    "type": "java.lang.String",
+    "description": "A description for 'tuya..client-id'"
+  },
+  {
+    "name": "tuya..client-secret",
+    "type": "java.lang.String",
+    "description": "A description for 'tuya..client-secret'"
+  },
+  {
+    "name": "tuya..project-code",
+    "type": "java.lang.String",
+    "description": "A description for 'tuya..project-code'"
+  },
+  {
+    "name": "tuya..base-url",
+    "type": "java.lang.String",
+    "description": "A description for 'tuya..base-url'"
+  },
+  {
+    "name": "tuya..connect-timeout",
+    "type": "java.lang.Integer",
+    "description": "A description for 'tuya..connect-timeout'"
+  },
+  {
+    "name": "tuya..read-timeout",
+    "type": "java.lang.Integer",
+    "description": "A description for 'tuya..read-timeout'"
+  },
+  {
+    "name": "tuya..write-timeout",
+    "type": "java.lang.Integer",
+    "description": "A description for 'tuya..write-timeout'"
+  },
+  {
+    "name": "tuya..scheduler..enabled",
+    "type": "java.lang.Boolean",
+    "description": "A description for 'tuya..scheduler..enabled'"
+  },
+  {
+    "name": "tuya..scheduler..cron",
+    "type": "java.lang.String",
+    "description": "A description for 'tuya..scheduler..cron'"
+  },
+  {
+    "name": "tuya..scheduler..batch-size",
+    "type": "java.lang.Integer",
+    "description": "A description for 'tuya..scheduler..batch-size'"
+  },
+  {
+    "name": "tuya..access-token",
+    "type": "java.lang.String",
+    "description": "A description for 'tuya..access-token'"
+  },
+  {
+    "name": "tuya..scheduler..time",
+    "type": "java.lang.String",
+    "description": "A description for 'tuya..scheduler..time'"
+  }
+]}

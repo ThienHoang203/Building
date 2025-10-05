@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +47,7 @@ public class TuyaApiClientImplement implements TuyaApiClient {
     String baseUrl;
 
     @NonFinal
+    @Value("${tuya.access-token}")
     String cachedAccessToken;
     @NonFinal
     String cachedRefreshToken;
@@ -112,7 +116,7 @@ public class TuyaApiClientImplement implements TuyaApiClient {
     @Override
     public <T> TuyaReponse<T> get(String url, ParameterizedTypeReference<TuyaReponse<T>> responseType,
             Map<String, String> queryParams) {
-        String fullUrl = buildUrlWithParams(url, queryParams);
+        String fullUrl = buildSignatureUrl(url, queryParams);
         return executeRequest(HttpMethod.GET, fullUrl, responseType, null, null);
     }
 
@@ -199,26 +203,17 @@ public class TuyaApiClientImplement implements TuyaApiClient {
         }
     }
 
-    private String buildUrlWithParams(String url, Map<String, String> params) {
-        if (params == null || params.isEmpty()) {
-            return url;
+    private String buildSignatureUrl(String path, Map<String, String> params) {
+        if (CollectionUtils.isEmpty(params)) {
+            return path;
         }
 
-        StringBuilder urlBuilder = new StringBuilder(url);
-        urlBuilder.append("?");
+        String queryString = params.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> String.join("", e.getKey() + "=" + e.getValue()))
+                .collect(Collectors.joining("&"));
 
-        params.forEach((key, value) -> {
-            if (value != null) {
-                urlBuilder.append(key).append("=").append(value).append("&");
-            }
-        });
-
-        // delete the last '&'
-        if (urlBuilder.charAt(urlBuilder.length() - 1) == '&') {
-            urlBuilder.deleteCharAt(urlBuilder.length() - 1);
-        }
-
-        return urlBuilder.toString();
+        return String.join("", path, "?", queryString);
     }
 
     private String generateNonce() {
@@ -241,7 +236,7 @@ public class TuyaApiClientImplement implements TuyaApiClient {
 
             // create signature by using HMAC-SHA256
             String stringToSign = method + "\n" + contentHash + "\n" + "\n" + url;
-            String str = clientId + (cachedAccessToken != null ? cachedAccessToken
+            String str = clientId + (StringUtils.hasText(cachedAccessToken) ? cachedAccessToken
                     : "") + timestamp + nonce + stringToSign;
             log.warn("StringToSign: {}", stringToSign);
             log.warn("AccessToken: {}", cachedAccessToken);

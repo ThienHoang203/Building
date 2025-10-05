@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.management.building.dto.request.device.DeviceCreateRequest;
+import com.management.building.dto.request.device.DeviceUpdateCategoryRequest;
 import com.management.building.dto.request.device.DeviceUpdateRequest;
 import com.management.building.dto.response.device.DeviceResponse;
+import com.management.building.dto.response.device.DeviceResponseWithCategory;
 import com.management.building.exception.AppException;
 import com.management.building.exception.ErrorCode;
 import com.management.building.mapper.device.DeviceMapper;
@@ -34,9 +36,6 @@ public class DeviceServiceImplement implements DeviceService {
 
     @Override
     public DeviceResponse create(DeviceCreateRequest requestBody) {
-        if (deviceRepo.existsByCode(requestBody.getCode())) {
-            throw new AppException(ErrorCode.SMART_DEVICE_CODE_EXISTS);
-        }
         String categoryCode = requestBody.getCategoryCode();
         if (!categoryRepo.existsById(categoryCode)) {
             throw new AppException(ErrorCode.SMART_DEVICE_CATEGORY_NOT_FOUND);
@@ -85,6 +84,22 @@ public class DeviceServiceImplement implements DeviceService {
     public List<DeviceResponse> getAll() {
         var result = deviceRepo.findAll();
         return result.stream().map(deviceMapper::toResponseFromDevice).toList();
+    }
+
+    @Override
+    public DeviceResponseWithCategory updateCategory(String id, DeviceUpdateCategoryRequest requestBody) {
+        var device = deviceRepo.findById(id).orElseThrow(() -> new AppException(ErrorCode.SMART_DEVICE_NOT_FOUND));
+        var category = categoryRepo.findById(requestBody.getCategoryCode())
+                .orElseThrow(() -> new AppException(ErrorCode.SMART_DEVICE_CATEGORY_NOT_FOUND));
+        device.setCategory(category);
+        try {
+            deviceRepo.save(device);
+            return deviceMapper.toResponseWithCategoryFromDevice(device);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("update categoty code: %s into device id: %s failed",
+                    requestBody.getCategoryCode(), id));
+        }
+
     }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.management.building.dto.response.tuyaCloud.TuyaReponse;
 import com.management.building.dto.response.tuyaCloud.device.TuyaCategoryDetail;
+import com.management.building.dto.response.tuyaCloud.device.TuyaStatusSetResult;
 import com.management.building.entity.device.Category;
 import com.management.building.mapper.tuya.TuyaMapper;
 import com.management.building.repository.device.CategoryRepository;
@@ -45,6 +46,13 @@ public class TuyaCategoryServiceImplement implements TuyaCategoryService {
             throw new RuntimeException("bulk failed, cause: " + e.getMessage());
         }
 
+    }
+
+    @Override
+    public TuyaReponse<TuyaStatusSetResult> getStatusSetByCategoryCode(String code) {
+        String url = String.format("/v1.0/iot-03/categories/%s/status", code);
+        return apiClient.get(url, new ParameterizedTypeReference<TuyaReponse<TuyaStatusSetResult>>() {
+        });
     }
 
 }

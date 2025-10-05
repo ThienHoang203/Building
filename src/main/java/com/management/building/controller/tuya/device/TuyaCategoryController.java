@@ -9,13 +9,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.management.building.dto.response.app.ApiResponse;
 import com.management.building.dto.response.tuyaCloud.TuyaReponse;
 import com.management.building.dto.response.tuyaCloud.device.TuyaCategoryDetail;
+import com.management.building.dto.response.tuyaCloud.device.TuyaStatusSetResult;
 import com.management.building.service.tuya.device.TuyaCategoryService;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @Validated
@@ -31,7 +34,12 @@ public class TuyaCategoryController {
         return categoryService.getCategoryList();
     }
 
-    @GetMapping("save-bulk")
+    @GetMapping("/{code}/status")
+    public TuyaReponse<TuyaStatusSetResult> getStatusSetByCategoryCode(@PathVariable @NotBlank String code) {
+        return categoryService.getStatusSetByCategoryCode(code);
+    }
+
+    @PostMapping("save-bulk")
     public ApiResponse<Void> saveBulkCategories() {
         categoryService.saveBulkCategoryList();
         return ApiResponse.<Void>builder()

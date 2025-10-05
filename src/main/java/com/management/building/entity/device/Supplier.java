@@ -7,9 +7,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,8 +22,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "code", "name" }) })
+@Table(indexes = {
+        @Index(name = "idx_code_name", columnList = "code, name"),
+        @Index(name = "idx_name", columnList = "name") })
 public class Supplier {
+
     @Id
     @Column(nullable = false, unique = true)
     String code;
@@ -33,4 +36,5 @@ public class Supplier {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE }, mappedBy = "supplier")
     Set<Device> devices;
+
 }

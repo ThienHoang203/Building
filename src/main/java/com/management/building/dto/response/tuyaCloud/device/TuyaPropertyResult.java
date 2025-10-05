@@ -14,10 +14,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TuyaLogResult {
-    String device_id;
-    String last_row_key;
-    Boolean has_more;
-    Long total;
-    List<TuyaLogDetail> logs;
+public class TuyaPropertyResult {
+    List<TuyaDevicePropertyDetail> properties;
 }

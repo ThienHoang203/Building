@@ -20,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 public class SupplierResponse {
 
     String name;
+
     String code;
 
 }

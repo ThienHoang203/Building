@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.management.building.dto.request.device.DeviceCreateRequest;
+import com.management.building.dto.request.device.DeviceUpdateCategoryRequest;
 import com.management.building.dto.request.device.DeviceUpdateRequest;
 import com.management.building.dto.response.app.ApiResponse;
 import com.management.building.dto.response.device.DeviceResponse;
+import com.management.building.dto.response.device.DeviceResponseWithCategory;
 import com.management.building.service.device.DeviceService;
 
 import jakarta.validation.Valid;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -36,9 +39,7 @@ public class DeviceController {
 
     @PostMapping
     public ApiResponse<DeviceResponse> create(@RequestBody @Valid DeviceCreateRequest requestBody) {
-
         var result = deviceService.create(requestBody);
-
         return ApiResponse.<DeviceResponse>builder()
                 .data(result)
                 .isSuccess(true)
@@ -50,6 +51,16 @@ public class DeviceController {
             @RequestBody DeviceUpdateRequest requestBody) {
         var result = deviceService.update(id, requestBody);
         return ApiResponse.<DeviceResponse>builder()
+                .data(result)
+                .isSuccess(true)
+                .build();
+    }
+
+    @PatchMapping("/{id}")
+    public ApiResponse<DeviceResponseWithCategory> updateCategory(@PathVariable @NotBlank String id,
+            @RequestBody DeviceUpdateCategoryRequest requestBody) {
+        var result = deviceService.updateCategory(id, requestBody);
+        return ApiResponse.<DeviceResponseWithCategory>builder()
                 .data(result)
                 .isSuccess(true)
                 .build();

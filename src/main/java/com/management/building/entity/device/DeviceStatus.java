@@ -1,16 +1,17 @@
 package com.management.building.entity.device;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,19 +28,29 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(indexes = { @Index(columnList = "changedAt") })
+@Table(indexes = {
+        @Index(name = "idx_id_deviceId_statusCode", columnList = "id, device_id, status_code"),
+        @Index(name = "idx_updatedAt", columnList = "updated_at"),
+        @Index(name = "idx_eventTime", columnList = "event_time") })
 public class DeviceStatus {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
     @JoinColumn(name = "device_id", nullable = false)
     Device device;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_code", nullable = false)
-    CategoryStatus status;
-    LocalDateTime changedAt;
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "deviceStatus", cascade = { CascadeType.REMOVE })
-    Set<DeviceStatusHistory> deviceStatusHistories;
+
+    @Column(name = "status_code", nullable = false)
+    String statusCode;
+
+    String value;
+
+    @Column(name = "updated_at")
+    LocalDateTime updatedAt;
+
+    @Column(name = "event_time", nullable = false)
+    Long eventTime;
 
 }
